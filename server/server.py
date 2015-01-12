@@ -1,5 +1,4 @@
-import Queue
-import serial, random
+import Queue, serial, datetime, random
 from threading import Thread
 from time import sleep
 # Import user parameters
@@ -21,7 +20,8 @@ def read_ser():
 def write_ser():
 	while exitcrit.empty():
 		if not writebuf.empty():
-			out = str(writebuf.get())
+			out = str(datetime.datetime.now())[:19] + ' '
+			out += str(writebuf.get())
 			if g.locecho:
 				print 'Sending: ' + out
 			out += '\r\n'
@@ -39,12 +39,12 @@ def parse_input():
 			if cmd[0] == 'CLS':
 				exitcrit.put('uliuli')
 			# Simulator stop command
-			if cmd[0] == 'STP':
+			if cmd[0] == 'HLT':
 				simcmd.put([False, False, 0])
 			# Simulator run command
 			if cmd[0] == 'GET':
-				try:
-					simcmd.put([True, True, int(cmd[1])])
+				try: # Try limited amount of cycles first
+					simcmd.put([True, True, int(cmd[1])]) 
 				except:
 					simcmd.put([True, False, 0])
 	return
