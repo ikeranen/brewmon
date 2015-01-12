@@ -3,6 +3,10 @@ from threading import Thread
 from time import sleep
 # Import user parameters
 import g
+# Import c implementation of PID controller
+import pid
+# Import thermal simulation model
+import tmodel
 
 # Read serial commands and send them to command parser
 def read_ser():
@@ -51,6 +55,11 @@ def parse_input():
 
 # Run brewing simulator
 def run_sim():
+	# Initialize PID controller
+	# kc, ts, ti, td, pmin, pmax, setp
+	# TBD: Scrape params from user parameters file
+	pid.init_pid(0.9/(135*0.00028), 1, 3.33*135, 0, 0, 2000, 40)
+	Tmodel = tmodel.Tmodel()
 	tick = False # Is simulator running
 	limit = False # Is simulator running for limited amount of cycles
 	counter = 0 # How many cycles to run
@@ -70,7 +79,9 @@ def run_sim():
 					tick = False
 					limit = False
 			# TBD: Integrate actual simulation when serial protocal done
-			writebuf.put(random.randrange(2000,7000)/100.0)
+			# PLaceholder code
+			# writebuf.put(random.randrange(2000,7000)/100.0)
+			writebuf.put(Tmodel.tick(pid.tick(Tmodel.getT())))
 			sleep(g.interval)
 	return
 	
